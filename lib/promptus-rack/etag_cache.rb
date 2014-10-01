@@ -12,7 +12,6 @@ class Promptus::Rack::ETagCache
 
   def call(env)
     status, headers, body = @app.call(env)
-    p "#{status} #{headers} #{body}"
     if (200..206) === status
       old_checksum = env[IF_NONE_MATCH_HEADER]
       new_checksum = body.first ? "W/\"#{@hash_method.hexdigest(body.first)}\"" : nil
