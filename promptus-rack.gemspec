@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Promptus::Rack::VERSION
   spec.authors       = ["Lars Kuhnt"]
   spec.email         = ["lars.kuhnt@gmail.com"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
+  spec.description   = %q{A collection of rack middlewares}
+  spec.summary       = %q{A collection of rack middlewares}
   spec.homepage      = ""
   spec.license       = "MIT"
 
