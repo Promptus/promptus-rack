@@ -15,12 +15,12 @@ class Promptus::Rack::ETag
   def call(env)
     status, headers, body = @app.call(env)
     if (200..206) === status && !etag_present?(headers)
-      old_checksum = env[IF_NONE_MATCH_KEY]
-      new_checksum = body.first ? "W/\"#{@hash_method.hexdigest(body.first)}\"" : nil
-      if old_checksum && old_checksum == new_checksum
+      old_etag = env[IF_NONE_MATCH_KEY]
+      new_etag = "W/\"#{digest_body(body)}\""
+      if old_etag && old_etag == new_etag
         return [304, {}, ['']]
-      elsif new_checksum
-        headers[ETAG_HEADER] = new_checksum
+      elsif new_etag
+        headers[ETAG_HEADER] = new_etag
         headers[CACHE_CONTROL_HEADER] = DEFAULT_CACHE_CONTROL if headers[CACHE_CONTROL_HEADER].nil?
       end
     end
@@ -31,6 +31,16 @@ class Promptus::Rack::ETag
   
   def etag_present?(headers)
     !(headers[ETAG_HEADER].nil? || headers[ETAG_HEADER] == '')
+  end
+  
+  def digest_body(body)
+    if body.respond_to?(:body)
+      @hash_method.hexdigest(body.body.to_s)
+    elsif body.respond_to?(:first)
+      @hash_method.hexdigest(body.first.to_s)
+    else
+      @hash_method.hexdigest(body.to_s)
+    end
   end
   
 end
