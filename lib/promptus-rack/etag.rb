@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class Promptus::Rack::ETagCache
+class Promptus::Rack::ETag
   
   IF_NONE_MATCH_KEY     = 'HTTP_IF_NONE_MATCH'.freeze
   ETAG_HEADER           = 'ETag'.freeze
