@@ -16,9 +16,10 @@ class Promptus::Rack::ETag
     status, headers, body = @app.call(env)
     if (200..206) === status && !etag_present?(headers)
       old_etag = env[IF_NONE_MATCH_KEY]
-      new_etag = "W/\"#{digest_body(body)}\""
-      if old_etag && old_etag == new_etag
-        return [304, {}, ['']]
+      digest = digest_body(body)
+      new_etag = "W/\"#{digest}\"" if digest
+      if old_etag && new_etag && old_etag == new_etag
+        return [304, {}, []]
       elsif new_etag
         headers[ETAG_HEADER] = new_etag
         headers[CACHE_CONTROL_HEADER] = DEFAULT_CACHE_CONTROL if headers[CACHE_CONTROL_HEADER].nil?
@@ -34,13 +35,11 @@ class Promptus::Rack::ETag
   end
   
   def digest_body(body)
-    if body.respond_to?(:body)
-      @hash_method.hexdigest(body.body.to_s)
-    elsif body.respond_to?(:first)
-      @hash_method.hexdigest(body.first.to_s)
-    else
-      @hash_method.hexdigest(body.to_s)
+    string_body = ''
+    body.each do |part|
+      string_body += part.to_s unless part.nil?
     end
+    string_body.empty? ? nil : @hash_method.hexdigest(string_body)
   end
   
 end

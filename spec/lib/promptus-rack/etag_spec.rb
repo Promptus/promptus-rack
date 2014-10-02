@@ -43,6 +43,12 @@ describe ETag do
     expect(headers['ETag']).to be_nil
   end
   
+  it 'should not add an ETag if the body is empty' do
+    @request[:response][2] = []
+    status, headers, body = @etag.call(@request)
+    expect(headers['ETag']).to be_nil
+  end
+  
   context 'matching IF_NONE_MATCH header' do
     
     before do
@@ -56,7 +62,7 @@ describe ETag do
     
     it 'should return an empty body' do
       status, headers, body = @etag.call(@request)
-      expect(body).to eql([''])
+      expect(body).to eql([])
     end
     
   end
