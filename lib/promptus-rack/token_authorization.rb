@@ -11,7 +11,18 @@ class Promptus::Rack::TokenAuthorization
 
   def call(env)
     req = Rack::Request.new(env)
-    if req.path.start_with?("/admin") or req.path.start_with?("/assets")
+
+    # if for some path you want to not validate the api key
+    # e.g. except => ["/admin", "assets"]
+    
+    skip = false
+    if @options[:except]
+      @options[:except].each do |exception|
+        skip = true if req.path.start_with?(exception)
+      end
+    end
+
+    if skip
       @app.call(env)
     elsif req.params[@key] != @token
       if @options[:content_type] == :json
